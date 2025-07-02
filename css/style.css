@@ -1,0 +1,29 @@
+body {
+    background-color: #f8f9fa; 
+    color: black; 
+}
+
+.sidebar {
+    background-color:  blue; 
+    padding: 15px; 
+    height: 100vh; 
+}
+
+.sidebar h2 {
+    color: white; 
+}
+.sidebar nav ul {
+    list-style-type: none; 
+    padding: 0; 
+}
+
+.sidebar nav ul li {
+    padding: 10px 0;  
+    color: white; 
+    display: block;
+}
+
+.main-content {
+    padding: 15px;
+    background-color: white; 
+}

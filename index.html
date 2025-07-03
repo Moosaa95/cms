@@ -13,10 +13,12 @@
 <body>
   <div class="container-fluid">
     <div class="row">
-      <!-- Sidebar -->
-      <aside class="col-md-2 sidebar">
-        <h2>HELPDESK</h2>
-        <p>Dashboard</p>
+<!-- Sidebar: hide on larger screens, toggle on small screens -->
+<aside class="sidebar"
+ id="mobileSidebar"
+ >
+        <h2><a href="index.html" class="text-white text-decoration-none">HELPDESK</a></h2>
+        <p><a href="index.html" class="text-white text-decoration-none">Dashboard</a></p>
         <p>Profile</p>
         <p>Tickets</p>
         <p>Categories</p> 
@@ -28,6 +30,9 @@
 
       <!-- Main content -->
       <main class="col-md-10 main-content">
+        <button class="btn btn-light d-md-none" id="hamburgerBtn">
+          <i class="fas fa-bars"></i>
+        </button>
 
         <div class="profile d-flex justify-content-end align-items-flex-start gap-3 mt-3 mb-3">
           <img src="assets/nigeria.png" alt="nigeria" class="profile-pic">
@@ -46,29 +51,29 @@
         <div class="d-flex flex-wrap mb-4 cards-container gap-4">
           <div class="custom-card shadow-lg mb-3 rounded">
             <div class="card-body">
-              <h1>333</h1>
+              <h1 id="all-tickets"></h1>
               <div class="card-bottom-text">All Tickets</div>
             </div>
           </div>
 
           <div class="custom-card shadow-lg mb-3 rounded">
             <div class="card-body">
-              <h1 style="color: red;">111</h1>
-              <div class="card-bottom-text">Opened</div>
+              <h1 id="open-tickets" style="color: red;"></h1>
+              <div class="card-bottom-text">Open</div>
             </div>
           </div>
 
           <div class="custom-card shadow-lg mb-3 rounded">
             <div class="card-body">
-              <h1 style="color: #ffbf00">11</h1>
-              <div class="card-bottom-text">Progress</div>
+              <h1 id="progress-tickets" style="color: #ffbf00"></h1>
+              <div class="card-bottom-text">In Progress</div>
             </div>
           </div>
 
           <div class="custom-card shadow-lg mb-3 rounded">
             <div class="card-body">
-              <h1 style="color: #16664e">1</h1>
-              <div class="card-bottom-text">Resolved</div>
+              <h1 id="closed-tickets" style="color: #16664e"></h1>
+              <div class="card-bottom-text">Closed</div>
             </div>
           </div>
         </div>
@@ -85,10 +90,10 @@
           <input type="date" id="startDate" class="form-control w-auto" />
           <input type="date" id="endDate" class="form-control w-auto" />
 
-          <input type="text" id="searchInput" placeholder="Search by name or subject"
+          <input type="text" id="searchInput" placeholder="Search name or subject"
             class="form-control w-auto" style="width: 200px;" />
 
-          <button class="btn btn-primary" onclick="applyFilters()">Apply</button>
+          <!-- <button class="btn btn-primary" onclick="applyFilters()">Apply</button> -->
         </div>
 
         <!-- Table -->
@@ -97,14 +102,12 @@
             <thead class="fw-bold">
               <tr>
                 <th>S.No</th>
-                <th>Ticket ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Subject</th>
+                <th>Title</th>
+                <th>Assigned To</th>
                 <th>Category</th>
                 <th>Status</th>
                 <th>Priority</th>
-                <th>Created</th>
+                <th>Created At</th>
               </tr>
             </thead>
             <tbody id="ticketTableBody"></tbody>

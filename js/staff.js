@@ -1,13 +1,11 @@
-// Initialize staff list from localStorage or default
+// Load staff from localStorage
 let staffList = JSON.parse(localStorage.getItem("staffList")) || [];
+let staffIdToDelete = null;
 
-// Utility: format date
 function formatDate(dateStr) {
-  const date = new Date(dateStr);
-  return date.toLocaleString("en-GB");
+  return new Date(dateStr).toLocaleString("en-GB");
 }
 
-// Render staff table
 function renderStaffTable() {
   const tbody = document.getElementById("staff-body");
   tbody.innerHTML = "";
@@ -19,52 +17,41 @@ function renderStaffTable() {
 
   staffList.forEach((staff, index) => {
     const row = document.createElement("tr");
-
     row.innerHTML = `
       <td>${index + 1}</td>
       <td>${staff.staffId}</td>
       <td>${staff.name}</td>
       <td>${staff.email}</td>
-      <td>${staff.subject}</td>
-      <td><span class="badge badge--${staff.status}">${staff.status.replace('-', ' ')}</span></td>
-      <td><span class="priority priority--${staff.priority}">${staff.priority}</span></td>
+      <td>${staff.department}</td>
+      <td>${staff.role}</td>
+      <td>${staff.status}</td>
       <td>${formatDate(staff.created)}</td>
       <td>
-        <button class="btn btn--sm btn--primary" onclick="viewStaff('${staff.id}')">
-          View
-        </button>
-        <button class="btn btn--sm btn-danger" onclick="deleteStaff('${staff.id}')">
-          Delete
-        </button>
+        <button class="btn btn-sm btn-primary" onclick="openEditModal('${staff.id}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="confirmDeleteStaff('${staff.id}')">Delete</button>
       </td>
     `;
-
     tbody.appendChild(row);
   });
 }
 
-// Add staff
-document.getElementById("submitStaff").addEventListener("click", () => {
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const subject = document.getElementById("subject").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const priority = document.getElementById("priority").value;
-  const status = document.getElementById("status").value;
+document.getElementById("staffForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const name = document.getElementById("staff-name").value.trim();
+  const email = document.getElementById("staff-email").value.trim();
+  const department = document.getElementById("staff-department").value.trim();
+  const role = document.getElementById("staff-role").value.trim();
+  const status = document.getElementById("staff-status").value;
 
-  if (!name || !email || !subject || !description || !priority || !status) {
-    alert("Please fill all fields.");
-    return;
-  }
+  if (!name || !email || !department || !role || !status) return alert("Please fill all fields.");
 
   const newStaff = {
     id: Date.now().toString(),
     staffId: "STF-" + Math.floor(Math.random() * 900 + 100),
     name,
     email,
-    subject,
-    description,
-    priority,
+    department,
+    role,
     status,
     created: new Date().toISOString(),
   };
@@ -72,43 +59,48 @@ document.getElementById("submitStaff").addEventListener("click", () => {
   staffList.push(newStaff);
   localStorage.setItem("staffList", JSON.stringify(staffList));
   renderStaffTable();
-
-  // Reset form
   document.getElementById("staffForm").reset();
   bootstrap.Modal.getOrCreateInstance(document.getElementById("addStaffModal")).hide();
 });
 
-// View staff details
-function viewStaff(id) {
+function openEditModal(id) {
   const staff = staffList.find((s) => s.id === id);
   if (!staff) return;
 
-  document.getElementById("modal-id").textContent = staff.staffId;
-  document.getElementById("modal-name").textContent = staff.name;
-  document.getElementById("modal-email").textContent = staff.email;
-  document.getElementById("modal-subject").textContent = staff.subject;
-  document.getElementById("modal-description").textContent = staff.description;
-  document.getElementById("modal-created").textContent = formatDate(staff.created);
+  document.getElementById("edit-id").value = staff.id;
+  document.getElementById("edit-name").value = staff.name;
+  document.getElementById("edit-email").value = staff.email;
+  document.getElementById("edit-department").value = staff.department;
+  document.getElementById("edit-role").value = staff.role;
+  document.getElementById("edit-status").value = staff.status;
 
-  const statusSpan = document.createElement("span");
-  statusSpan.className = `badge badge--${staff.status}`;
-  statusSpan.textContent = staff.status.replace("-", " ");
-  document.getElementById("modal-status").innerHTML = "";
-  document.getElementById("modal-status").appendChild(statusSpan);
-
-  const prioritySpan = document.createElement("span");
-  prioritySpan.className = `priority priority--${staff.priority}`;
-  prioritySpan.textContent = staff.priority;
-  document.getElementById("modal-priority").innerHTML = "";
-  document.getElementById("modal-priority").appendChild(prioritySpan);
-
-  bootstrap.Modal.getOrCreateInstance(document.getElementById("viewStaffModal")).show();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("editStaffModal")).show();
 }
 
-// Deletion logic with confirmation
-let staffIdToDelete = null;
+document.getElementById("editStaffForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const id = document.getElementById("edit-id").value;
+  const name = document.getElementById("edit-name").value.trim();
+  const email = document.getElementById("edit-email").value.trim();
+  const department = document.getElementById("edit-department").value.trim();
+  const role = document.getElementById("edit-role").value.trim();
+  const status = document.getElementById("edit-status").value;
 
-function deleteStaff(id) {
+  const staff = staffList.find((s) => s.id === id);
+  if (!staff) return;
+
+  staff.name = name;
+  staff.email = email;
+  staff.department = department;
+  staff.role = role;
+  staff.status = status;
+
+  localStorage.setItem("staffList", JSON.stringify(staffList));
+  renderStaffTable();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("editStaffModal")).hide();
+});
+
+function confirmDeleteStaff(id) {
   staffIdToDelete = id;
   bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteConfirmModal")).show();
 }
@@ -123,5 +115,4 @@ document.getElementById("confirmDeleteBtn").addEventListener("click", () => {
   }
 });
 
-// Render on load
 window.addEventListener("DOMContentLoaded", renderStaffTable);

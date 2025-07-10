@@ -12,7 +12,7 @@ function renderStaffTable() {
   tbody.innerHTML = "";
 
   if (staffList.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center">No staff records found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">No staff records found.</td></tr>`;
     return;
   }
 
@@ -20,13 +20,9 @@ function renderStaffTable() {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${index + 1}</td>
-      <td>${staff.staffId}</td>
-      <td>${staff.name}</td>
+      <td>${staff.full_name}</td>
       <td>${staff.email}</td>
-      <td>${staff.department}</td>
       <td>${staff.role}</td>
-      <td>${staff.status}</td>
-      <td>${formatDate(staff.created)}</td>
       <td>
         <button class="btn btn-sm btn-primary" onclick="openEditModal('${staff.id}')">Edit</button>
         <button class="btn btn-sm btn-danger" onclick="confirmDeleteStaff('${staff.id}')">Delete</button>
@@ -72,7 +68,7 @@ document.getElementById("staffForm").addEventListener("submit", async function (
   };
 
   try {
-    await fetch('http://198.168.0.193/api/tickets/staff', {
+    await fetch('http://192.168.0.193:8002/api/tickets/staff', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newStaff),
@@ -120,7 +116,7 @@ document.getElementById("editStaffForm").addEventListener("submit", async functi
   };
 
   try {
-    await fetch(`http://127.0.0.1:5500/api/staff/${id}`, {
+    await fetch(`http://192.168.0.193:8002/api/tickets/staff/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedStaff),
@@ -143,7 +139,7 @@ function confirmDeleteStaff(id) {
 document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
   if (staffIdToDelete) {
     try {
-      await fetch(`http://127.0.0.1:5500/api/staff/${staffIdToDelete}`, {
+      await fetch(`http://192.168.0.193:8002/api/tickets/staff/${staffIdToDelete}/`, {
         method: "DELETE"
       });
 

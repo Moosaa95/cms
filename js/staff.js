@@ -1,11 +1,12 @@
-// Load staff from localStorage
-let staffList = JSON.parse(localStorage.getItem("staffList")) || [];
 let staffIdToDelete = null;
+let staffList = [];
 
+// Format date
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleString("en-GB");
 }
 
+// Render staff table
 function renderStaffTable() {
   const tbody = document.getElementById("staff-body");
   tbody.innerHTML = "";
@@ -35,7 +36,24 @@ function renderStaffTable() {
   });
 }
 
-document.getElementById("staffForm").addEventListener("submit", function (e) {
+// Fetch staff from API
+async function fetchStaffs() {
+  try {
+    const res = await fetch('http://192.168.0.193:8080/api/staff/', {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+    staffList = data;
+    renderStaffTable();
+  } catch (error) {
+    console.error('Failed to fetch staff:', error);
+  }
+}
+
+// Add new staff via API
+document.getElementById("staffForm").addEventListener("submit", async function (e) {
   e.preventDefault();
   const name = document.getElementById("staff-name").value.trim();
   const email = document.getElementById("staff-email").value.trim();
@@ -46,23 +64,29 @@ document.getElementById("staffForm").addEventListener("submit", function (e) {
   if (!name || !email || !department || !role || !status) return alert("Please fill all fields.");
 
   const newStaff = {
-    id: Date.now().toString(),
-    staffId: "STF-" + Math.floor(Math.random() * 900 + 100),
     name,
     email,
     department,
     role,
-    status,
-    created: new Date().toISOString(),
+    status
   };
 
-  staffList.push(newStaff);
-  localStorage.setItem("staffList", JSON.stringify(staffList));
-  renderStaffTable();
-  document.getElementById("staffForm").reset();
-  bootstrap.Modal.getOrCreateInstance(document.getElementById("addStaffModal")).hide();
+  try {
+    await fetch('http://192.168.0.193:8080/api/staff/', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newStaff),
+    });
+
+    await fetchStaffs();
+    document.getElementById("staffForm").reset();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("addStaffModal")).hide();
+  } catch (error) {
+    console.error('Failed to add staff:', error);
+  }
 });
 
+// Open edit modal
 function openEditModal(id) {
   const staff = staffList.find((s) => s.id === id);
   if (!staff) return;
@@ -77,7 +101,8 @@ function openEditModal(id) {
   bootstrap.Modal.getOrCreateInstance(document.getElementById("editStaffModal")).show();
 }
 
-document.getElementById("editStaffForm").addEventListener("submit", function (e) {
+// Submit edit form
+document.getElementById("editStaffForm").addEventListener("submit", async function (e) {
   e.preventDefault();
   const id = document.getElementById("edit-id").value;
   const name = document.getElementById("edit-name").value.trim();
@@ -86,33 +111,50 @@ document.getElementById("editStaffForm").addEventListener("submit", function (e)
   const role = document.getElementById("edit-role").value.trim();
   const status = document.getElementById("edit-status").value;
 
-  const staff = staffList.find((s) => s.id === id);
-  if (!staff) return;
+  const updatedStaff = {
+    name,
+    email,
+    department,
+    role,
+    status
+  };
 
-  staff.name = name;
-  staff.email = email;
-  staff.department = department;
-  staff.role = role;
-  staff.status = status;
+  try {
+    await fetch(`http://192.168.0.193:8080/api/staff/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedStaff),
+    });
 
-  localStorage.setItem("staffList", JSON.stringify(staffList));
-  renderStaffTable();
-  bootstrap.Modal.getOrCreateInstance(document.getElementById("editStaffModal")).hide();
+    await fetchStaffs();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("editStaffModal")).hide();
+  } catch (error) {
+    console.error('Failed to update staff:', error);
+  }
 });
 
+// Confirm delete
 function confirmDeleteStaff(id) {
   staffIdToDelete = id;
   bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteConfirmModal")).show();
 }
 
-document.getElementById("confirmDeleteBtn").addEventListener("click", () => {
+// Delete via API
+document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
   if (staffIdToDelete) {
-    staffList = staffList.filter((s) => s.id !== staffIdToDelete);
-    localStorage.setItem("staffList", JSON.stringify(staffList));
-    renderStaffTable();
-    bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteConfirmModal")).hide();
-    staffIdToDelete = null;
+    try {
+      await fetch(`http://192.168.0.193:8080/api/staff/${staffIdToDelete}`, {
+        method: "DELETE"
+      });
+
+      staffIdToDelete = null;
+      await fetchStaffs();
+      bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteConfirmModal")).hide();
+    } catch (error) {
+      console.error('Failed to delete staff:', error);
+    }
   }
 });
 
-window.addEventListener("DOMContentLoaded", renderStaffTable);
+// Load data on page load
+window.addEventListener("DOMContentLoaded", fetchStaffs);

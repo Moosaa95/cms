@@ -96,7 +96,7 @@ async function fetchStats() {
     console.log("stats");
     
   try {
-    const res = await fetch('http://192.168.0.193:8080/api/tickets/stats/');
+    const res = await fetch('http://127.0.0.1:5500/api/tickets/stats/');
     const stats = await res.json();
     updateCardCounts(stats);
   } catch (error) {
@@ -108,7 +108,7 @@ async function fetchTickets() {
     console.log("tickets");
     
   try {
-    const res = await fetch('http://192.168.0.193:8080/api/tickets/',{
+    const res = await fetch('http://127.0.0.1:5500/api/tickets/',{
         method:"GET",
          headers: {
     "Content-Type": "application/json",

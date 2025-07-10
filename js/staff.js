@@ -39,7 +39,7 @@ function renderStaffTable() {
 // Fetch staff from API
 async function fetchStaffs() {
   try {
-    const res = await fetch('http://192.168.0.193:8080/api/staff/', {
+    const res = await fetch('http://192.168.0.193:8002/api/tickets/staff', {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -72,7 +72,7 @@ document.getElementById("staffForm").addEventListener("submit", async function (
   };
 
   try {
-    await fetch('http://192.168.0.193:8080/api/staff/', {
+    await fetch('http://198.168.0.193/api/tickets/staff', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newStaff),
@@ -120,7 +120,7 @@ document.getElementById("editStaffForm").addEventListener("submit", async functi
   };
 
   try {
-    await fetch(`http://192.168.0.193:8080/api/staff/${id}`, {
+    await fetch(`http://127.0.0.1:5500/api/staff/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedStaff),
@@ -143,7 +143,7 @@ function confirmDeleteStaff(id) {
 document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
   if (staffIdToDelete) {
     try {
-      await fetch(`http://192.168.0.193:8080/api/staff/${staffIdToDelete}`, {
+      await fetch(`http://127.0.0.1:5500/api/staff/${staffIdToDelete}`, {
         method: "DELETE"
       });
 
